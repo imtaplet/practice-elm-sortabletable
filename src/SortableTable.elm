@@ -17,7 +17,7 @@ type Msg
 
 init : Model
 init =
-    Model Nothing False [ "書籍名" ]
+    Model Nothing False [ "書籍名", "価格" ]
 
 
 update : Msg -> Model -> Model
@@ -31,29 +31,20 @@ update msg model =
             }
 
 
-view : Model -> List String -> Html Msg
+view : Model -> List (List String) -> Html Msg
 view model items =
-    let
-        reversedItems =
-            if model.reversed then
-                List.reverse items
-
-            else
-                items
-    in
     table
         [ onClick (ClickColumn Nothing)
         ]
-        [ thead [] (List.map viewColumn model.columns)
-        , tbody [] (List.map viewRow reversedItems)
+        [ thead [] [ viewColumn model.columns ]
+        , tbody [] (List.map viewRow items)
         ]
 
 
-viewColumn : String -> Html Msg
-viewColumn item =
+viewColumn : List String -> Html Msg
+viewColumn columns =
     tr []
-        [ viewHeader item
-        ]
+        (columns |> List.map viewHeader)
 
 
 viewHeader : String -> Html Msg
@@ -63,11 +54,10 @@ viewHeader item =
         ]
 
 
-viewRow : String -> Html Msg
-viewRow item =
+viewRow : List String -> Html Msg
+viewRow rows =
     tr []
-        [ viewCell item
-        ]
+        (rows |> List.map viewCell)
 
 
 viewCell : String -> Html Msg

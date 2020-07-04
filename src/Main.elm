@@ -15,7 +15,7 @@ main =
 
 
 type alias Model =
-    { books : List String
+    { books : List (List String)
     , tableState : SortableTable.Model
     }
 
@@ -27,8 +27,12 @@ type Msg
 init : Model
 init =
     { books =
-        [ "基礎からわかる Elm"
-        , "一兆ドルコーチ"
+        [ [ "基礎からわかる Elm"
+          , "2,893円"
+          ]
+        , [ "一兆ドルコーチ"
+          , "1,870円"
+          ]
         ]
     , tableState = SortableTable.init
     }
