@@ -1,5 +1,6 @@
 module SortableTable exposing (Model, Msg, init, update, view)
 
+import Dict
 import Html exposing (Html, table, tbody, td, text, th, thead, tr)
 import Html.Events exposing (onClick)
 
@@ -19,12 +20,12 @@ type Msg
     = ClickColumn (Maybe String)
 
 
-init : Model
-init =
+init : List String -> Model
+init columns =
     Model
         { sortColumn = Nothing
         , reversed = False
-        , columns = [ "書籍名", "価格" ]
+        , columns = columns
         }
 
 
@@ -32,21 +33,49 @@ update : Msg -> Model -> Model
 update msg (Model model) =
     case msg of
         ClickColumn columnName ->
-            { model
-                | sortColumn = columnName
-                , reversed =
-                    not model.reversed
-            }
-                |> Model
+            if model.sortColumn == columnName then
+                { model
+                    | reversed = not model.reversed
+                }
+                    |> Model
+
+            else
+                { model
+                    | reversed = False
+                    , sortColumn = columnName
+                }
+                    |> Model
 
 
-view : Model -> List (List String) -> Html Msg
+view : Model -> List (Dict.Dict String String) -> Html Msg
 view (Model model) items =
+    let
+        sortedItems =
+            case model.sortColumn of
+                Just column ->
+                    items
+                        |> List.sortBy
+                            (\item ->
+                                item
+                                    |> Dict.get column
+                                    |> Maybe.withDefault ""
+                            )
+
+                Nothing ->
+                    items
+
+        reversedItems =
+            if model.reversed then
+                sortedItems
+                    |> List.reverse
+
+            else
+                sortedItems
+    in
     table
-        [ onClick (ClickColumn Nothing)
-        ]
+        []
         [ thead [] [ viewColumn model.columns ]
-        , tbody [] (List.map viewRow items)
+        , tbody [] (List.map viewRow reversedItems)
         ]
 
 
@@ -58,15 +87,15 @@ viewColumn columns =
 
 viewHeader : String -> Html Msg
 viewHeader item =
-    th []
+    th [ onClick (ClickColumn (Just item)) ]
         [ text item
         ]
 
 
-viewRow : List String -> Html Msg
+viewRow : Dict.Dict String String -> Html Msg
 viewRow rows =
     tr []
-        (rows |> List.map viewCell)
+        (rows |> Dict.values |> List.map viewCell)
 
 
 viewCell : String -> Html Msg

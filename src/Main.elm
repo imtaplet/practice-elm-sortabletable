@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import Browser exposing (sandbox)
+import Dict
 import Html exposing (Html)
 import SortableTable
 
@@ -15,7 +16,7 @@ main =
 
 
 type alias Model =
-    { books : List (List String)
+    { books : List (Dict.Dict String String)
     , tableState : SortableTable.Model
     }
 
@@ -24,17 +25,21 @@ type Msg
     = UpdateTable SortableTable.Msg
 
 
+book : String -> String -> Dict.Dict String String
+book name price =
+    [ ( "書籍名", name )
+    , ( "価格", price )
+    ]
+        |> Dict.fromList
+
+
 init : Model
 init =
     { books =
-        [ [ "基礎からわかる Elm"
-          , "2,893円"
-          ]
-        , [ "一兆ドルコーチ"
-          , "1,870円"
-          ]
+        [ book "基礎からわかる Elm" "2,893円"
+        , book "一兆ドルコーチ" "1,870円"
         ]
-    , tableState = SortableTable.init
+    , tableState = SortableTable.init [ "書籍名", "価格" ]
     }
 
 
