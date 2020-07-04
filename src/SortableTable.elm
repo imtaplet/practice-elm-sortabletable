@@ -4,7 +4,11 @@ import Html exposing (Html, table, tbody, td, text, th, thead, tr)
 import Html.Events exposing (onClick)
 
 
-type alias Model =
+type Model
+    = Model Internal
+
+
+type alias Internal =
     { sortColumn : Maybe String
     , reversed : Bool
     , columns : List String
@@ -17,11 +21,15 @@ type Msg
 
 init : Model
 init =
-    Model Nothing False [ "書籍名", "価格" ]
+    Model
+        { sortColumn = Nothing
+        , reversed = False
+        , columns = [ "書籍名", "価格" ]
+        }
 
 
 update : Msg -> Model -> Model
-update msg model =
+update msg (Model model) =
     case msg of
         ClickColumn columnName ->
             { model
@@ -29,10 +37,11 @@ update msg model =
                 , reversed =
                     not model.reversed
             }
+                |> Model
 
 
 view : Model -> List (List String) -> Html Msg
-view model items =
+view (Model model) items =
     table
         [ onClick (ClickColumn Nothing)
         ]
